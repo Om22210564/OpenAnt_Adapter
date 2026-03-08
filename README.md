@@ -1,6 +1,6 @@
-# openant
+# OpenAnt
 
-A bidirectional session bridge between **Claude Code CLI** and **OpenAI Codex CLI**. Resume a Codex session inside Claude Code — or vice versa — with full conversational context, tool calls, and reasoning preserved. No re-explaining anything manually.
+A bidirectional session bridge between **OpenAI Codex CLI** and **Anthropic Claude Code CLI** . Resume a Codex session inside Claude Code — or vice versa — with full conversational context, tool calls, and reasoning preserved. No re-explaining anything manually.
 
 ```
 openant list

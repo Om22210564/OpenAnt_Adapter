@@ -191,12 +191,16 @@ function parseCodexSession(filePath) {
       if (pt === 'function_call') {
         const turn = ensureAssistantTurn();
         turn.timestamp = ts;
-        const block = makeToolCallBlock(
-          payload.call_id,
-          payload.name,
-          'standard',
-          payload.arguments !== undefined ? payload.arguments : {},
-        );
+        // arguments is a JSON string from Codex — parse to object for Claude tool_use compatibility
+        let input = {};
+        if (payload.arguments !== undefined) {
+          if (typeof payload.arguments === 'string') {
+            try { input = JSON.parse(payload.arguments); } catch (e) { input = { _raw: payload.arguments }; }
+          } else {
+            input = payload.arguments;
+          }
+        }
+        const block = makeToolCallBlock(payload.call_id, payload.name, 'standard', input);
         turn.blocks.push(block);
         pendingToolCalls.set(payload.call_id, block);
         continue;
@@ -216,12 +220,14 @@ function parseCodexSession(filePath) {
       if (pt === 'custom_tool_call') {
         const turn = ensureAssistantTurn();
         turn.timestamp = ts;
-        const block = makeToolCallBlock(
-          payload.call_id,
-          payload.name,
-          'custom',
-          payload.input !== undefined ? payload.input : {},
-        );
+        // input is a raw string for custom tools (e.g. apply_patch) — wrap in object for Claude compatibility
+        let input = {};
+        if (payload.input !== undefined) {
+          input = typeof payload.input === 'string'
+            ? { input: payload.input }
+            : payload.input;
+        }
+        const block = makeToolCallBlock(payload.call_id, payload.name, 'custom', input);
         turn.blocks.push(block);
         pendingToolCalls.set(payload.call_id, block);
         continue;
